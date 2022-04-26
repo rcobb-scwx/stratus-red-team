@@ -18,12 +18,13 @@ var tf []byte
 func init() {
 	stratus.GetRegistry().RegisterAttackTechnique(&stratus.AttackTechnique{
 		ID:           "azure.execution.vm-custom-script-extension",
-		FriendlyName: "AZT201.2 - Virtual Machine Scripting: CustomScriptExtension",
+		FriendlyName: "Execute Command on Virtual Machine using Custom Script Extension",
 		Description: `
-		By utilizing the 'CustomScriptExtension' extension on a Virtual Machine, an attacker can pass PowerShell commands to the VM as SYSTEM.
+By utilizing the 'CustomScriptExtension' extension on a Virtual Machine, an attacker can pass PowerShell commands to the VM as SYSTEM.
 
-Reference:
+References:
 
+- https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/custom-script-windows
 - https://github.com/hausec/Azure-Attack-Matrix/blob/main/Execution/AZT201/AZT201-2.md
 
 Warm-up: 
@@ -34,12 +35,13 @@ Detonation:
 
 - Configure a custom script extension for the virtual machine
 `,
-		Detection:                  "Identify Microsoft.Compute/virtualMachines/extensions/write events in Azure Activity logs",
+		Detection:                  "Identify `Microsoft.Compute/virtualMachines/extensions/write` events in Azure Activity logs",
 		Platform:                   stratus.Azure,
-		IsIdempotent:               true,
+		IsIdempotent:               false,
 		MitreAttackTactics:         []mitreattack.Tactic{mitreattack.Execution},
 		PrerequisitesTerraformCode: tf,
 		Detonate:                   detonate,
+		Revert:                     revert,
 	})
 }
 
@@ -71,7 +73,7 @@ func detonate(params map[string]string) error {
 				AutoUpgradeMinorVersion: to.Ptr(true),
 				EnableAutomaticUpgrade:  to.Ptr(false),
 				ProtectedSettings:  map[string]interface{}{
-					"commandToExecute": "powershell.exe Get-Service",
+					"commandToExecute": "powershell.exe Get-Service", // the powershell to run with the custom script extension
 				},
 				Publisher:          to.Ptr("Microsoft.Compute"),
 				Settings:           map[string]interface{}{},
@@ -89,6 +91,41 @@ func detonate(params map[string]string) error {
 	}
 
 	_ = res
+
+	return nil
+}
+
+func revert(params map[string]string) error {
+	vmObjectId := params["vm_instance_object_id"]
+	vmName := params["vm_name"]
+	resourceGroup := params["resource_group_name"]
+
+	ctx := context.Background()
+	cred := providers.Azure().GetCredentials()
+	subscriptionID := providers.Azure().SubscriptionID
+	clientOptions := providers.Azure().ClientOptions
+
+	client, err := armcompute.NewVirtualMachineExtensionsClient(subscriptionID, cred, clientOptions)
+	if err != nil {
+		log.Fatalf("failed to create client: %v", err)
+	}
+
+	log.Println("Reverting Custom Script Extension for VM instance " + vmObjectId)
+
+	poller, err := client.BeginDelete(ctx,
+		resourceGroup,
+		vmName,
+		"CustomScriptExtension-Stratus-Example",
+		&armcompute.VirtualMachineExtensionsClientBeginDeleteOptions{ResumeToken: ""})
+
+	if err != nil {
+		log.Fatalf("failed to finish the request: %v", err)
+	}
+
+	_, err = poller.PollUntilDone(ctx, 30*time.Second)
+	if err != nil {
+		log.Fatalf("failed to pull the result: %v", err)
+	}
 
 	return nil
 }

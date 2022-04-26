@@ -17,8 +17,9 @@ Platform: Azure
 
 By utilizing the 'CustomScriptExtension' extension on a Virtual Machine, an attacker can pass PowerShell commands to the VM as SYSTEM.
 
-Reference:
+References:
 
+- https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/custom-script-windows
 - https://github.com/hausec/Azure-Attack-Matrix/blob/main/Execution/AZT201/AZT201-2.md
 
 <span style="font-variant: small-caps;">Warm-up</span>:
@@ -38,5 +39,5 @@ stratus detonate azure.execution.vm-custom-script-extension
 
 ## Detection
 
-1. <code>Microsoft.Compute/virtualMachines/extensions/write</code> events in Azure Activity log
-2. Files on disk located in <code>C:\Packages\Plugins\Microsoft.Compute.CustomScriptExtension</code>
+1. Look for <code>Microsoft.Compute/virtualMachines/extensions/write</code> events in Azure Activity logs
+2. Review files on disk located in <code>C:\Packages\Plugins\Microsoft.Compute.CustomScriptExtension</code>

@@ -18,15 +18,17 @@ var tf []byte
 func init() {
 	stratus.GetRegistry().RegisterAttackTechnique(&stratus.AttackTechnique{
 		ID:           "azure.execution.vm-run-command",
-		FriendlyName: "AZT201.1 - Virtual Machine Scripting: RunCommand",
+		FriendlyName: "Execute Commands on Virtual Machine using Run Command",
 		Description: `
-		By utilizing the 'RunCommand' feature on a Virtual Machine, an attacker can pass:
+By utilizing the 'RunCommand' feature on a Virtual Machine, an attacker can pass:
 
 - Windows: PowerShell commands to the VM as SYSTEM.
 - Linux: Shell commands to the VM as root.
 
-Reference:
+References:
 
+- https://docs.microsoft.com/en-us/azure/virtual-machines/windows/run-command
+- https://docs.microsoft.com/en-us/azure/virtual-machines/linux/run-command
 - https://github.com/hausec/Azure-Attack-Matrix/blob/main/Execution/AZT201/AZT201-1.md
 
 Warm-up: 
@@ -37,7 +39,7 @@ Detonation:
 
 - Invoke a RunCommand on the target virtual machine
 `,
-		Detection:                  "Identify Azure Activity RunCommand events",
+		Detection:                  "Identify `Microsoft.Compute/virtualMachines/runCommand/action` events in Azure Activity logs",
 		Platform:                   stratus.Azure,
 		IsIdempotent:               true,
 		MitreAttackTactics:         []mitreattack.Tactic{mitreattack.Execution},
@@ -56,14 +58,14 @@ func detonate(params map[string]string) error {
 	subscriptionID := providers.Azure().SubscriptionID
 	clientOptions := providers.Azure().ClientOptions
 
-	virtualMachineRunCommandClient, err := armcompute.NewVirtualMachineRunCommandsClient(subscriptionID, cred, clientOptions)
+	client, err := armcompute.NewVirtualMachineRunCommandsClient(subscriptionID, cred, clientOptions)
 	if err != nil {
 		log.Fatalf("failed to create client: %v", err)
 	}
 
 	log.Println("Issuing Run Command for VM instance " + vmObjectId)
 
-	poller, err := virtualMachineRunCommandClient.BeginCreateOrUpdate(ctx,
+	poller, err := client.BeginCreateOrUpdate(ctx,
 		resourceGroup,
 		vmName,
 		"RunPowerShellScript",
@@ -75,7 +77,7 @@ func detonate(params map[string]string) error {
 				RunAsPassword: nil,
 				RunAsUser: nil,
 				Source: &armcompute.VirtualMachineRunCommandScriptSource{
-					Script: to.Ptr("Get-Service"),
+					Script: to.Ptr("Get-Service"), // the powershell cmdlet to execute in the RunCommand
 				},
 				TimeoutInSeconds: to.Ptr[int32](3600),
 			},

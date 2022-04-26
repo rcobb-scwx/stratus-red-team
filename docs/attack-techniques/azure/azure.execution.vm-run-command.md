@@ -22,6 +22,8 @@ By utilizing the 'RunCommand' feature on a Virtual Machine, an attacker can pass
 
 References:
 
+- https://docs.microsoft.com/en-us/azure/virtual-machines/windows/run-command
+- https://docs.microsoft.com/en-us/azure/virtual-machines/linux/run-command
 - https://github.com/hausec/Azure-Attack-Matrix/blob/main/Execution/AZT201/AZT201-1.md
 
 <span style="font-variant: small-caps;">Warm-up</span>:
@@ -41,5 +43,5 @@ stratus detonate azure.execution.vm-run-command
 
 ## Detection
 
-1. <code>Microsoft.Compute/virtualMachines/runCommand/action</code> events in Azure Activity log
-2. Files on disk located in <code>C:\Packages\Plugins\Microsoft.CPlat.Core.RunCommandWindows</code>, <code>/var/lib/waagent/run-command/download/</code>, or <code>/var/lib/waagent/Microsoft.CPlat.Core.RunCommandLinux-1.0.3</code>
+1. Look for <code>Microsoft.Compute/virtualMachines/runCommand/action</code> events in Azure Activity logs
+2. Review files on disk located in <code>C:\Packages\Plugins\Microsoft.CPlat.Core.RunCommandWindows</code>, <code>/var/lib/waagent/run-command/download/</code>, or <code>/var/lib/waagent/Microsoft.CPlat.Core.RunCommandLinux-VERSIONNUMER</code>
