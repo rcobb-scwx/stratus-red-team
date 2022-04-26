@@ -24,6 +24,10 @@ func EnsureAuthenticated(platform stratus.Platform) error {
 			return errors.New("You do not have a kubeconfig set up, or you do not have proper permissions for " +
 				"this cluster. Make sure you have proper credentials set in " + GetKubeConfigPath())
 		}
+	case stratus.Azure:
+		if !Azure().IsAuthenticatedAgainstAzure() {
+			return errors.New("Something went horribly wrong with the Azure auth.")
+		}
 	default:
 		return errors.New("unhandled platform " + string(platform))
 	}

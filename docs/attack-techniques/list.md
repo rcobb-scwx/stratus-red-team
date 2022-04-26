@@ -38,3 +38,5 @@ This page contains the list of all Stratus Attack Techniques.
 | [Container breakout via hostPath volume mount](./kubernetes/k8s.privilege-escalation.hostpath-volume.md) | [kubernetes](./kubernetes/index.md) | Privilege Escalation |
 | [Privilege escalation through node/proxy permissions](./kubernetes/k8s.privilege-escalation.nodes-proxy.md) | [kubernetes](./kubernetes/index.md) | Privilege Escalation |
 | [Run a Privileged Pod](./kubernetes/k8s.privilege-escalation.privileged-pod.md) | [kubernetes](./kubernetes/index.md) | Privilege Escalation |
+| [Virtual Machine Run Command](./azure/azure.execution.vm-run-command.md) | [Azure](./azure/index.md) | Execution |
+| [Virtual Machine Custom Script Extension](./azure/azure.execution.vm-custom-script-extension.md) | [Azure](./azure/index.md) | Execution |
