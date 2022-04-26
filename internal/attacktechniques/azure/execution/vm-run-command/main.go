@@ -54,9 +54,9 @@ func detonate(params map[string]string) error {
 	ctx := context.Background()
 	cred := providers.Azure().GetCredentials()
 	subscriptionID := providers.Azure().SubscriptionID
-	//clientOptions := providers.Azure().ClientOptions
+	clientOptions := providers.Azure().ClientOptions
 
-	virtualMachineRunCommandClient, err := armcompute.NewVirtualMachineRunCommandsClient(subscriptionID, cred, nil)//clientOptions)
+	virtualMachineRunCommandClient, err := armcompute.NewVirtualMachineRunCommandsClient(subscriptionID, cred, clientOptions)
 	if err != nil {
 		log.Fatalf("failed to create client: %v", err)
 	}
