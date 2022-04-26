@@ -1,7 +1,11 @@
 package attacktechniques
 
 import (
-
+	_ "github.com/datadog/stratus-red-team/internal/attacktechniques/aws/credential-access/ec2-get-password-data"
+	_ "github.com/datadog/stratus-red-team/internal/attacktechniques/aws/credential-access/ec2-steal-instance-credentials"
+	_ "github.com/datadog/stratus-red-team/internal/attacktechniques/aws/credential-access/secretsmanager-retrieve-secrets"
+	_ "github.com/datadog/stratus-red-team/internal/attacktechniques/aws/credential-access/ssm-retrieve-securestring-parameters"
+	_ "github.com/datadog/stratus-red-team/internal/attacktechniques/aws/defense-evasion/cloudtrail-delete"
 	_ "github.com/datadog/stratus-red-team/internal/attacktechniques/aws/defense-evasion/cloudtrail-event-selectors"
 	_ "github.com/datadog/stratus-red-team/internal/attacktechniques/aws/defense-evasion/cloudtrail-lifecycle-rule"
 	_ "github.com/datadog/stratus-red-team/internal/attacktechniques/aws/defense-evasion/cloudtrail-stop"
